@@ -78,10 +78,13 @@ export default function App() {
     setIsSolving(false);
     setState('playing');
     const nextBoard = await new Promise<Board>((resolve) => {
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(() => resolve(createNewGame()));
+      const idleCallback = (
+        globalThis as { requestIdleCallback?: (cb: () => void) => number }
+      ).requestIdleCallback;
+      if (idleCallback) {
+        idleCallback(() => resolve(createNewGame()));
       } else {
-        window.setTimeout(() => resolve(createNewGame()), 0);
+        setTimeout(() => resolve(createNewGame()), 0);
       }
     });
     setBoard(nextBoard);
